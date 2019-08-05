@@ -46,8 +46,15 @@ const getMovie = function () {
     }
     else {
       movieName += nodeArgs[i];
+    
     }
-  }
+  }  
+    // console.log('Movie name:  ' + movieName);
+    if (movieName === ""){
+      
+      movieName = "Mr+Nobody"; 
+    }
+  
 
   // Then run a request with axios to the OMDB API with the movie specified
   const queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
@@ -60,7 +67,7 @@ const getMovie = function () {
       }
       // If movie found this will print the data:
       else {
-        console.log(response.data);
+        // console.log(response.data);
         console.log('----------------------------------------');
         console.log("Title:  " + response.data.Title);
         console.log('----------------------------------------');
