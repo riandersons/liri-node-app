@@ -18,12 +18,13 @@ const getMeSpotify = function (songName) {
     if (err) {
       return console.log('Error occurred: ' + err);
     }
-
+        console.log(data.tracks.items[0].album.name);
     for (let j = 0; j < data.tracks.items.length; j++) {
       for (let i = 0; i < data.tracks.items[0].artists.length; i++) {
         console.log('Artist name:  ' + data.tracks.items[j].artists[i].name);
         console.log('Song name:  ' + data.tracks.items[j].name);
         console.log('Preview link:  ' + data.tracks.items[j].artists[i].external_urls.spotify);
+        console.log('Album:  ' + data.tracks.items[j].album.name);
         console.log('----------------------------------------');
       };
     };
