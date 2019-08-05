@@ -8,6 +8,9 @@ const spotify = new Spotify(keys.spotify);
 
 const axios = require("axios");
 
+const moment = require('moment');
+moment().format();
+
 
 const getMeSpotify = function (songName) {
 
@@ -48,35 +51,68 @@ const getMovie = function () {
   // Then run a request with axios to the OMDB API with the movie specified
   const queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
 
-  // This line is just to help us debug against the actual URL.
-  // console.log(queryUrl);
-
   axios.get(queryUrl).then(
     function (response) {
       // If movie not found this will catch the error:
-      if(response.data.Response === 'False'){
-      console.log(response.data.Error + '  Check your spelling!');      
+      if (response.data.Response === 'False') {
+        console.log(response.data.Error + '  Check your spelling!');
       }
       // If movie found this will print the data:
-      else{
-      console.log(response.data);
-      console.log('----------------------------------------');
-      console.log("Title:  " + response.data.Title);
-      console.log('----------------------------------------');
-      console.log("Release Year: " + response.data.Year);
-      console.log('IMDB Rating:  ' + response.data.Ratings[0].Value);
-      console.log('Rotten Tomatoes Rating:  ' + response.data.Ratings[1].Value);
-      console.log('Country Produced:  ' + response.data.Country);
-      console.log('Language:  ' + response.data.Language);
-      console.log('Movie Plot:  ' + response.data.Plot);
-      console.log("Actors:  " + response.data.Actors);
-      console.log('----------------------------------------');
-    }}
+      else {
+        console.log(response.data);
+        console.log('----------------------------------------');
+        console.log("Title:  " + response.data.Title);
+        console.log('----------------------------------------');
+        console.log("Release Year: " + response.data.Year);
+        console.log('IMDB Rating:  ' + response.data.Ratings[0].Value);
+        console.log('Rotten Tomatoes Rating:  ' + response.data.Ratings[1].Value);
+        console.log('Country Produced:  ' + response.data.Country);
+        console.log('Language:  ' + response.data.Language);
+        console.log('Movie Plot:  ' + response.data.Plot);
+        console.log("Actors:  " + response.data.Actors);
+        console.log('----------------------------------------');
+      }
+    }
   );
 }
 
+const getBand = function(){
+  const nodeArgs = process.argv;
 
+  // Create an empty variable for holding the band name
+  let artist = "";
 
+  // Loop through all the words in the node argument
+  // And do a little for-loop magic to handle the inclusion of "+"s
+  for (let i = 3; i < nodeArgs.length; i++) {
+
+    if (i > 3 && i < nodeArgs.length) {
+      artist = artist + "+" + nodeArgs[i];
+    }
+    else {
+      artist += nodeArgs[i];
+    }
+  }
+
+  
+  // Then run a request with axios
+  const queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"
+
+  // console.log(queryUrl);
+    
+  axios.get(queryUrl).then(
+    function (response) {
+      // console.log(response);
+      if(response.data === "\n{warn=Not found}\n"){
+        console.log("Artist / Band not found! ");
+      }
+      else{
+        console.log('Venue:  ' + response.data[0].venue.name);
+        console.log('Location:  ' + response.data[0].venue.city + ", " + response.data[0].venue.country);
+        console.log('Event date and time:  ' + moment(response.data[0].datetime).format('MMM DD YYYY   hh:mm a'));
+    };
+});
+}
 
 
 const pick = function (caseData, functionData) {
