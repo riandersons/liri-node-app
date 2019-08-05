@@ -11,14 +11,37 @@ const axios = require("axios");
 const moment = require('moment');
 moment().format();
 
+ 
+const getMeSpotify = function () {
 
-const getMeSpotify = function (songName) {
+  const nodeArgs = process.argv;
+
+  // Create an empty variable for holding the song name
+  let songName = "";
+
+  // Loop through all the words in the node argument
+  // And do a little for-loop magic to handle the inclusion of "+"s
+  for (let i = 3; i < nodeArgs.length; i++) {
+
+    if (i > 3 && i < nodeArgs.length) {
+      songName = songName + "+" + nodeArgs[i];
+    }
+    else {
+      songName += nodeArgs[i];
+
+    }
+  }
+  // Set default song if no song was entered:
+  if (songName === "") {
+
+    songName = "The+Sign";
+  }
 
   spotify.search({ type: 'track', query: songName }, function (err, data) {
     if (err) {
       return console.log('Error occurred: ' + err);
     }
-        console.log(data.tracks.items[0].album.name);
+    console.log(data.tracks.items[0].album.name);
     for (let j = 0; j < data.tracks.items.length; j++) {
       for (let i = 0; i < data.tracks.items[0].artists.length; i++) {
         console.log('Artist name:  ' + data.tracks.items[j].artists[i].name);
@@ -46,15 +69,15 @@ const getMovie = function () {
     }
     else {
       movieName += nodeArgs[i];
-    
+
     }
-  }  
-    // console.log('Movie name:  ' + movieName);
-    if (movieName === ""){
-      
-      movieName = "Mr+Nobody"; 
-    }
-  
+  }
+  // Set default movie if none was entered:
+  if (movieName === "") {
+
+    movieName = "Mr+Nobody";
+  }
+
 
   // Then run a request with axios to the OMDB API with the movie specified
   const queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
@@ -67,7 +90,6 @@ const getMovie = function () {
       }
       // If movie found this will print the data:
       else {
-        // console.log(response.data);
         console.log('----------------------------------------');
         console.log("Title:  " + response.data.Title);
         console.log('----------------------------------------');
@@ -84,7 +106,7 @@ const getMovie = function () {
   );
 }
 
-const getBand = function(){
+const getBand = function () {
   const nodeArgs = process.argv;
 
   // Create an empty variable for holding the band name
@@ -101,32 +123,38 @@ const getBand = function(){
       artist += nodeArgs[i];
     }
   }
+    if(artist === ""){
+      artist = "Garth+Brooks";
+    }
 
-  
   // Then run a request with axios
   const queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"
 
   // console.log(queryUrl);
-    
+
   axios.get(queryUrl).then(
     function (response) {
       // console.log(response);
-      if(response.data === "\n{warn=Not found}\n"){
+      if (response.data === "\n{warn=Not found}\n") {
         console.log("Artist / Band not found! ");
       }
-      else{
+      else {
+        console.log('----------------------------------------');
+        console.log('Artist:  '+ artist);
+        console.log('----------------------------------------');
         console.log('Venue:  ' + response.data[0].venue.name);
         console.log('Location:  ' + response.data[0].venue.city + ", " + response.data[0].venue.country);
         console.log('Event date and time:  ' + moment(response.data[0].datetime).format('MMM DD YYYY   hh:mm a'));
-    };
-});
+      };
+    });
 }
 
 
-const pick = function (caseData, functionData) {
-  switch (caseData) {
-    case 'spotify-this-song':
-      getMeSpotify(functionData);
+const pick = function() {
+  const selection = process.argv[2];
+  switch (selection) {
+    case 'spotify-this-song':    
+    getMeSpotify();
       break;
 
     case 'movie-this':
@@ -142,9 +170,6 @@ const pick = function (caseData, functionData) {
   }
 }
 
+// Make selection to start the process...
+pick();
 
-const runThis = function (argOne, argTwo) {
-  pick(argOne, argTwo);
-};
-
-runThis(process.argv[2], process.argv[3]);
