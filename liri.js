@@ -1,5 +1,7 @@
 require("dotenv").config();
 
+const fs = require('fs');
+
 const keys = require("./keys.js");
 
 const Spotify = require('node-spotify-api');
@@ -9,74 +11,47 @@ const spotify = new Spotify(keys.spotify);
 const axios = require("axios");
 
 const moment = require('moment');
-moment().format();
+// moment().format();
 
- 
-const getMeSpotify = function () {
 
-  const nodeArgs = process.argv;
-
-  // Create an empty variable for holding the song name
-  let songName = "";
-
-  // Loop through all the words in the node argument
-  // And do a little for-loop magic to handle the inclusion of "+"s
-  for (let i = 3; i < nodeArgs.length; i++) {
-
-    if (i > 3 && i < nodeArgs.length) {
-      songName = songName + "+" + nodeArgs[i];
-    }
-    else {
-      songName += nodeArgs[i];
-
-    }
+const getArtistNames = function (artist) {
+      return artist.name;
   }
+
+const getMeSpotify = function (songName) {
+
   // Set default song if no song was entered:
-  if (songName === "") {
+  // if (process.argv[3] === "") {
 
-    songName = "The+Sign";
-  }
+  //   const songName = "The+Sign";
+  // }
 
   spotify.search({ type: 'track', query: songName }, function (err, data) {
     if (err) {
       return console.log('Error occurred: ' + err);
     }
-    console.log(data.tracks.items[0].album.name);
-    for (let j = 0; j < data.tracks.items.length; j++) {
-      for (let i = 0; i < data.tracks.items[0].artists.length; i++) {
-        console.log('Artist name:  ' + data.tracks.items[j].artists[i].name);
-        console.log('Song name:  ' + data.tracks.items[j].name);
-        console.log('Preview link:  ' + data.tracks.items[j].artists[i].external_urls.spotify);
-        console.log('Album:  ' + data.tracks.items[j].album.name);
-        console.log('----------------------------------------');
-      };
+
+    const songs = data.tracks.items;
+    for (let i = 0; i < songs.length; i++) {
+      console.log(i);
+      console.log('Artist(s):  ' + songs[i].artists.map(getArtistNames));
+      console.log('Song name:  ' + songs[i].name);
+      console.log('Preview link:  ' + songs[i].preview_url);
+      console.log('Album:  ' + songs[i].album.name);
+      console.log('----------------------------------------');
     };
+
   });
 }
 
-const getMovie = function () {
-  const nodeArgs = process.argv;
+const getMovie = function (movieName) {
 
-  // Create an empty variable for holding the movie name
-  let movieName = "";
 
-  // Loop through all the words in the node argument
-  // And do a little for-loop magic to handle the inclusion of "+"s
-  for (let i = 3; i < nodeArgs.length; i++) {
-
-    if (i > 3 && i < nodeArgs.length) {
-      movieName = movieName + "+" + nodeArgs[i];
-    }
-    else {
-      movieName += nodeArgs[i];
-
-    }
-  }
   // Set default movie if none was entered:
-  if (movieName === "") {
+  // if (movieName === "") {
 
-    movieName = "Mr+Nobody";
-  }
+  // movieName = "Mr+Nobody";
+
 
 
   // Then run a request with axios to the OMDB API with the movie specified
@@ -103,29 +78,30 @@ const getMovie = function () {
         console.log('----------------------------------------');
       }
     }
-  );
-}
+  )
+};
 
-const getBand = function () {
-  const nodeArgs = process.argv;
+
+const getBand = function (artist) {
+  // const nodeArgs = process.argv;
 
   // Create an empty variable for holding the band name
-  let artist = "";
+  // let artist = "";
 
   // Loop through all the words in the node argument
   // And do a little for-loop magic to handle the inclusion of "+"s
-  for (let i = 3; i < nodeArgs.length; i++) {
+  // for (let i = 3; i < nodeArgs.length; i++) {
 
-    if (i > 3 && i < nodeArgs.length) {
-      artist = artist + "+" + nodeArgs[i];
-    }
-    else {
-      artist += nodeArgs[i];
-    }
-  }
-    if(artist === ""){
-      artist = "Garth+Brooks";
-    }
+  //   if (i > 3 && i < nodeArgs.length) {
+  //     artist = artist + "+" + nodeArgs[i];
+  //   }
+  //   else {
+  //     artist += nodeArgs[i];
+  //   }
+  // }
+  //   if(artist === ""){
+  //     artist = "Garth+Brooks";
+  //   }
 
   // Then run a request with axios
   const queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"
@@ -140,7 +116,7 @@ const getBand = function () {
       }
       else {
         console.log('----------------------------------------');
-        console.log('Artist:  '+ artist);
+        console.log('Artist:  ' + artist);
         console.log('----------------------------------------');
         console.log('Venue:  ' + response.data[0].venue.name);
         console.log('Location:  ' + response.data[0].venue.city + ", " + response.data[0].venue.country);
@@ -149,20 +125,46 @@ const getBand = function () {
     });
 }
 
+const getSays = function () {
 
-const pick = function() {
-  const selection = process.argv[2];
-  switch (selection) {
-    case 'spotify-this-song':    
-    getMeSpotify();
+  fs.readFile("random.txt", "utf8", function (error, data) {
+
+    // If the code experiences any errors it will log the error to the console.
+    if (error) {
+      return console.log(error);
+    }
+
+    // We will then print the contents of data
+    console.log(data);
+
+    // Then split it by commas (to make it more readable)
+    const dataArr = data.split(",");
+
+    if (dataArr.length == 2) {
+      pick(dataArr[0], dataArr[1]);
+    }
+    else if (dataArr.length == 1) {
+      pick(dataArr[0]);
+    }
+  })
+};
+
+const pick = function (caseData, functionData) {
+  switch (caseData) {
+    case 'spotify-this-song':
+      getMeSpotify(functionData);
       break;
 
     case 'movie-this':
-      getMovie();
+      getMovie(functionData);
       break;
 
     case 'concert-this':
-      getBand();
+      getBand(functionData);
+      break;
+
+    case 'do-what-it-says':
+      getSays(functionData);
       break;
 
     default:
@@ -171,5 +173,8 @@ const pick = function() {
 }
 
 // Make selection to start the process...
-pick();
+const runThis = function (argOne, argTwo) {
+  pick(argOne, argTwo);
+}
 
+runThis(process.argv[2], process.argv[3])
