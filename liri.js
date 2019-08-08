@@ -11,48 +11,48 @@ const spotify = new Spotify(keys.spotify);
 const axios = require("axios");
 
 const moment = require('moment');
-// moment().format();
 
 
 const getArtistNames = function (artist) {
-      return artist.name;
-  }
+  return artist.name;
+}
 
 const getMeSpotify = function (songName) {
 
   // Set default song if no song was entered:
-  // if (process.argv[3] === "") {
+  if (songName === undefined) {
 
-  //   const songName = "The+Sign";
-  // }
+    songName = "The+Sign";
+  }
 
   spotify.search({ type: 'track', query: songName }, function (err, data) {
     if (err) {
       return console.log('Error occurred: ' + err);
     }
 
+
     const songs = data.tracks.items;
     for (let i = 0; i < songs.length; i++) {
-      console.log(i);
+      console.log(i + 1);
       console.log('Artist(s):  ' + songs[i].artists.map(getArtistNames));
       console.log('Song name:  ' + songs[i].name);
       console.log('Preview link:  ' + songs[i].preview_url);
       console.log('Album:  ' + songs[i].album.name);
       console.log('----------------------------------------');
-    };
 
-  });
-}
+    };
+  }
+  )
+};
+
 
 const getMovie = function (movieName) {
 
-
   // Set default movie if none was entered:
-  // if (movieName === "") {
+  if (movieName === undefined) {
 
-  // movieName = "Mr+Nobody";
-
-
+    movieName = "Mr+Nobody";
+  }
 
   // Then run a request with axios to the OMDB API with the movie specified
   const queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
@@ -83,35 +83,19 @@ const getMovie = function (movieName) {
 
 
 const getBand = function (artist) {
-  // const nodeArgs = process.argv;
 
-  // Create an empty variable for holding the band name
-  // let artist = "";
-
-  // Loop through all the words in the node argument
-  // And do a little for-loop magic to handle the inclusion of "+"s
-  // for (let i = 3; i < nodeArgs.length; i++) {
-
-  //   if (i > 3 && i < nodeArgs.length) {
-  //     artist = artist + "+" + nodeArgs[i];
-  //   }
-  //   else {
-  //     artist += nodeArgs[i];
-  //   }
-  // }
-  //   if(artist === ""){
-  //     artist = "Garth+Brooks";
-  //   }
+  // Set default artist if none was entered:
+  if (artist === undefined) {
+    artist = "Garth+Brooks";
+  }
 
   // Then run a request with axios
   const queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp"
-
-  // console.log(queryUrl);
-
+ 
   axios.get(queryUrl).then(
     function (response) {
-      // console.log(response);
-      if (response.data === "\n{warn=Not found}\n") {
+      
+      if (response.data[0] === undefined || null) {
         console.log("Artist / Band not found! ");
       }
       else {
@@ -174,6 +158,7 @@ const pick = function (caseData, functionData) {
 
 // Make selection to start the process...
 const runThis = function (argOne, argTwo) {
+
   pick(argOne, argTwo);
 }
 
